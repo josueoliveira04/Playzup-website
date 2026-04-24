@@ -490,15 +490,7 @@
     grid-auto-rows: minmax(220px, auto);
     gap:20px;
   }
-  @media(max-width:960px){
-    .features-grid{grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; gap: 16px}
-    .features-grid > *{grid-column: auto; grid-row: auto}
-    .feature-card.wide{grid-column: span 2}
-  }
-  @media(max-width:560px){
-    .features-grid{grid-template-columns: 1fr}
-    .feature-card.wide{grid-column: auto}
-  }
+
   .feature-card{
     background: linear-gradient(180deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
     border: 1px solid var(--border);
@@ -521,10 +513,25 @@
   }
   .feature-card:hover::before{opacity:1}
 
-  /* Bento grid layout */
+  /* Bento grid layout (Base Desktop) */
   .feature-card.wide{grid-column: span 4}
   .feature-card.tall{grid-column: span 2; grid-row: span 2}
   .feature-card.normal{grid-column: span 2}
+
+  /* Bento grid layout (Responsive) */
+  @media(max-width:960px){
+    .features-grid{grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; gap: 16px}
+    .features-grid > *{grid-column: auto !important; grid-row: auto !important}
+    .feature-card.wide{grid-column: span 2 !important}
+    .feature-card.tall{grid-column: span 2 !important}
+    .feature-card.normal{grid-column: span 2 !important}
+  }
+  @media(max-width:560px){
+    .features-grid{grid-template-columns: 1fr}
+    .feature-card.wide{grid-column: auto !important}
+    .feature-card.tall{grid-column: auto !important}
+    .feature-card.normal{grid-column: auto !important}
+  }
 
   .feature-icon{
     width:52px;height:52px;border-radius:14px;
@@ -591,6 +598,10 @@
     background: linear-gradient(135deg, var(--gold) 0%, #f5d58a 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
     margin: auto 0 16px; padding-top: 20px;
+  }
+  @media(max-width:560px){
+    .big-stat{ display: none }
+    .big-stat-label{ display: none }
   }
   .big-stat-label{
     font-family: var(--mono);
@@ -790,6 +801,7 @@
     font-size:13px;color:var(--text-dim);flex-wrap:wrap;gap:12px;
   }
   .footer-bottom .made{font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em}
+  .footer-bottom a{color:var(--gold);border-bottom:1px solid rgba(245,181,68,0.3)}
 
   /* ─── REVEAL animation ─────────────────────────────── */
   .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1)}
@@ -835,7 +847,6 @@
       <a href="#features">Funcionalidades</a>
       <a href="#how">Como funciona</a>
       <a href="#faq">FAQ</a>
-      <a href="privacy.html">Privacidade</a>
       <a href="#download" class="nav-cta">Obter app</a>
     </div>
   </div>
@@ -1202,6 +1213,7 @@
       <div class="footer-col">
         <h4>Legal & Suporte</h4>
         <a href="privacy.html">Política de Privacidade</a>
+        <a href="terms.html">Termos e Condições</a>
         <a href="mailto:suporte@playzup.app">Suporte</a>
         <a href="mailto:suporte@playzup.app">suporte@playzup.app</a>
       </div>
@@ -1209,6 +1221,7 @@
 
     <div class="footer-bottom">
       <div>© 2025 Playzup. Todos os direitos reservados.</div>
+      <div><a href="privacy.html">Política de Privacidade</a> · <a href="terms.html">Termos e Condições</a></div>
       <div class="made">Feito com ⚽ em Portugal</div>
     </div>
   </div>
