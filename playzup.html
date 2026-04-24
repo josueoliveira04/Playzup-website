@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Playzup — O teu jogo. A tua equipa.</title>
+<meta name="description" content="Playzup é a app de gestão de futebol amador. Convocatórias, pagamentos, jogo ao vivo, MVP e estatísticas — sem caos no grupo de WhatsApp." />
+<meta property="og:title" content="Playzup — O teu jogo. A tua equipa." />
+<meta property="og:description" content="Chega de confusão no grupo. Começa a jogar a sério." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/png" href="assets/icon.png" />
+<link rel="apple-touch-icon" href="assets/icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- Bricolage Grotesque (display, moderno/desportivo) + Inter (body, legível) + JetBrains Mono (números) -->
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    /* Primárias — Verde Campo */
+    --green: #1A7A45;
+    --green-hover: #148038;
+    --green-deep: #0D5C28;
+    --green-light: #E8F5ED;
+    --green-fill: #A8D5B8;
+    /* Neutras — Fundo e Superfícies */
+    --bg: #0A0D12;
+    --bg-elev: #121821;
+    --bg-elev-2: #1A2130;
+    /* Semânticas */
+    --amber: #F59E0B;
+    --gold: #F5B544;
+    --gold-deep: #D98E0B;
+    --red: #EF4444;
+    --yellow: #FACC15;
+    --blue: #3B82F6;
+    --gray-inactive: #6B7280;
+    /* Texto — contraste AA */
+    --text: #F2F4F8;
+    --text-mid: #BCC3CE;
+    --text-dim: #8A93A3;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --radius: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --shadow-glow: 0 24px 80px -24px rgba(26,122,69,0.55);
+    --shadow-gold: 0 18px 60px -18px rgba(245,181,68,0.35);
+    --display: 'Bricolage Grotesque', 'SF Pro Display', system-ui, sans-serif;
+    --sans: 'Inter', 'SF Pro Text', system-ui, -apple-system, Roboto, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:90px}
+  body{
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  /* Noise overlay — subtil, dá textura sem distrair */
+  body::before{
+    content:""; position:fixed; inset:0; z-index: 1; pointer-events:none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+    opacity: 0.04; mix-blend-mode: overlay;
+  }
+  a{color:inherit;text-decoration:none}
+  img,svg{display:block;max-width:100%}
+  button{font-family:inherit}
+
+  .container{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 32px);
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ─── NAV ─────────────────────────────────────────── */
+  .nav{
+    position: fixed; top:0; left:0; right:0; z-index: 100;
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    background: rgba(10,13,18,0.65);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s, background .3s;
+  }
+  .nav.scrolled{
+    border-bottom-color: var(--border);
+    background: rgba(10,13,18,0.85);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    height: 72px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:18px;letter-spacing:-0.02em}
+  .brand-mark{
+    width:38px;height:38px;border-radius:11px;
+    display:grid;place-items:center;overflow:hidden;
+    box-shadow: 0 0 0 1px var(--border), 0 6px 16px -8px rgba(0,0,0,0.6);
+  }
+  .brand-mark img{width:38px;height:38px;object-fit:cover;border-radius:11px;}
+  .nav-links{display:flex;gap:8px;align-items:center}
+  .nav-links > a{
+    font-size:14px;color:var(--text-mid);transition:color .2s, background .2s;
+    font-weight:500; padding: 8px 14px; border-radius: 10px;
+  }
+  .nav-links > a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+  .nav-links > a.active{color:var(--text)}
+  .nav-cta{
+    background: linear-gradient(180deg, var(--green) 0%, var(--green-deep) 100%) !important;
+    color: #fff !important; font-weight:700 !important;
+    padding: 10px 18px !important; border-radius: 10px; font-size: 14px;
+    transition: transform .15s, box-shadow .2s;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset, 0 8px 18px -10px rgba(26,122,69,0.7);
+    margin-left: 8px;
+  }
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,0.18) inset, 0 12px 24px -8px rgba(26,122,69,0.75) !important; background: linear-gradient(180deg, #1f8a4f 0%, #0f6a2f 100%) !important}
+  .nav-toggle{display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:8px}
+  @media(max-width:900px){
+    .nav-links{
+      position:absolute; top:72px; left:0; right:0;
+      flex-direction:column; gap:0; align-items:stretch;
+      background: var(--bg-elev); border-bottom:1px solid var(--border);
+      padding: 8px; transform: translateY(-10px); opacity:0; pointer-events:none;
+      transition: all .25s;
+    }
+    .nav-links.open{transform:translateY(0);opacity:1;pointer-events:auto}
+    .nav-links > a{padding:14px 18px;width:100%;border-radius:10px}
+    .nav-cta{margin: 6px 10px !important; text-align:center}
+    .nav-toggle{display:block}
+  }
+
+  /* ─── HERO ────────────────────────────────────────── */
+  .hero{
+    position:relative;
+    padding: 150px 0 90px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse at 15% 0%, rgba(26,122,69,0.28), transparent 50%),
+      radial-gradient(ellipse at 85% 30%, rgba(13,92,40,0.32), transparent 55%),
+      radial-gradient(circle at 60% 110%, rgba(245,181,68,0.12), transparent 60%);
+    pointer-events:none;
+  }
+  /* Pitch lines — sutis, em fundo, evocam um campo */
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero-grid{
+    position:relative; z-index:2;
+    display:grid; grid-template-columns: 1.15fr 0.85fr; gap: 70px; align-items:center;
+  }
+  @media(max-width:960px){
+    .hero{padding:120px 0 60px}
+    .hero-grid{grid-template-columns:1fr;gap:48px;text-align:center}
+  }
+  @media(max-width:520px){
+    .hero{padding:100px 0 50px}
+    .hero-grid{gap:40px}
+  }
+
+  .tagline{
+    display:inline-flex; align-items:center; gap:10px;
+    background: rgba(245,181,68,0.08);
+    border: 1px solid rgba(245,181,68,0.25);
+    color: var(--gold);
+    padding: 7px 14px 7px 10px; border-radius: 999px;
+    font-size: 13px; font-weight:600; letter-spacing:0.01em;
+    margin-bottom: 28px;
+    font-family: var(--mono);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .tagline::before{
+    content:""; width:6px; height:6px; border-radius:50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 3px rgba(245,181,68,0.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1; box-shadow: 0 0 0 3px rgba(245,181,68,0.2)}
+    50%{opacity:0.6; box-shadow: 0 0 0 6px rgba(245,181,68,0)}
+  }
+
+  h1.hero-title{
+    font-family: var(--display);
+    font-size: clamp(42px, 6.4vw, 76px);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    margin-bottom: 24px;
+  }
+  h1.hero-title .accent{
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gold) 0%, #f5d58a 60%, var(--gold) 100%);
+    -webkit-background-clip: text; background-clip:text; color:transparent;
+    position: relative;
+  }
+  h1.hero-title .accent::after{
+    content:""; position:absolute; left:0; right:0; bottom:0.08em; height:0.1em;
+    background: linear-gradient(90deg, transparent, rgba(245,181,68,0.3), transparent);
+    border-radius: 2px;
+  }
+
+  .hero-sub{
+    font-size: 19px; color: var(--text-mid);
+    max-width: 540px; margin-bottom: 40px; line-height: 1.55;
+  }
+  @media(max-width:960px){.hero-sub{margin-left:auto;margin-right:auto}}
+
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap}
+  @media(max-width:960px){.cta-row{justify-content:center}}
+  @media(max-width:420px){
+    .cta-row{gap: 10px}
+    .store-btn{flex: 1 1 100%; justify-content: center}
+  }
+
+  .store-btn{
+    display:inline-flex; align-items:center; gap:12px;
+    background: #fff; color:#000;
+    padding: 13px 22px; border-radius: 14px;
+    transition: transform .15s, box-shadow .2s, background .2s;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .store-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px -10px rgba(0,0,0,0.5)}
+  .store-btn svg{width:26px;height:26px;flex-shrink:0}
+  .store-btn .small{font-size:11px;display:block;line-height:1;opacity:0.65;margin-bottom:3px;letter-spacing:0.02em}
+  .store-btn .big{font-size:16px;font-weight:700;line-height:1;letter-spacing:-0.01em}
+  .store-btn.dark{background:#0F1319;color:#fff;border-color:rgba(255,255,255,0.12)}
+  .store-btn.dark:hover{background:#151a22;border-color:rgba(255,255,255,0.22)}
+  .store-btn.primary{
+    background: linear-gradient(180deg, #ffffff 0%, #e8ebef 100%); color:#0A0D12;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 10px 26px -10px rgba(255,255,255,0.25);
+  }
+
+  /* Stats strip abaixo do CTA */
+  .hero-stats{
+    margin-top: 44px;
+    display:flex; align-items:center; gap: 28px;
+    flex-wrap: wrap;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  @media(max-width:960px){.hero-stats{justify-content:center}}
+  @media(max-width:520px){
+    .hero-stats{gap: 20px 24px; margin-top: 36px}
+    .hero-stats .divider{display:none}
+  }
+  .hero-stats .divider{width:1px;height:28px;background:var(--border)}
+  .hero-stats strong{
+    display:block; color:var(--text); font-size:20px; font-weight:700;
+    font-family: var(--mono); letter-spacing:-0.02em;
+    margin-bottom: 2px;
+  }
+  .hero-stats strong .plus{color:var(--gold)}
+
+  /* ─── PHONE MOCKUP ────────────────────────────────── */
+  .phone-wrap{display:flex;justify-content:center;perspective:1400px;position:relative}
+  .phone-wrap::before{
+    content:""; position:absolute; width:360px; height:360px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,181,68,0.15), transparent 60%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    pointer-events:none; filter: blur(20px);
+  }
+  .phone{
+    position:relative; width: 300px; height: 610px;
+    background: linear-gradient(145deg, #1a2030, #0A0D12);
+    border-radius: 48px;
+    padding: 12px;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 6px rgba(255,255,255,0.02),
+      0 60px 120px -30px rgba(0,0,0,0.8),
+      var(--shadow-glow);
+    transform: rotateY(-10deg) rotateX(6deg);
+    animation: float 7s ease-in-out infinite;
+    z-index: 1;
+  }
+  @media(max-width:960px){
+    .phone{animation: floatMobile 7s ease-in-out infinite}
+  }
+  @keyframes floatMobile{
+    0%,100%{transform:rotateY(-6deg) rotateX(3deg) translateY(0)}
+    50%{transform:rotateY(-6deg) rotateX(3deg) translateY(-10px)}
+  }
+  @media(max-width:420px){
+    .phone{width: 260px; height: 530px; border-radius: 42px}
+    .phone-screen{border-radius: 32px}
+    .phone-wrap::before{width: 280px; height: 280px}
+  }
+  @keyframes float{
+    0%,100%{transform:rotateY(-10deg) rotateX(6deg) translateY(0)}
+    50%{transform:rotateY(-10deg) rotateX(6deg) translateY(-14px)}
+  }
+  .phone-screen{
+    width:100%;height:100%;
+    background: linear-gradient(180deg, #0D5C28 0%, #0A0D12 50%);
+    border-radius: 36px;
+    overflow:hidden; position:relative;
+    display:flex; flex-direction:column;
+  }
+  .phone-notch{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:96px; height:26px; background:#000; border-radius:14px; z-index:5;
+  }
+  .ph-header{
+    padding: 58px 20px 14px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .ph-header .ph-title{font-size:13px;font-weight:700;letter-spacing:-0.01em}
+  .ph-header .ph-sub{font-size:10px;color:var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px}
+  .ph-header .ph-badge{
+    background: var(--red); color:#fff;
+    font-size:10px; font-weight:700; padding: 4px 8px; border-radius:6px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--mono); letter-spacing: 0.06em;
+  }
+  .ph-header .ph-badge::before{
+    content:""; width:5px; height:5px; border-radius:50%; background:#fff;
+    box-shadow: 0 0 6px rgba(255,255,255,0.9);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .ph-timer{
+    margin: 10px 16px; padding:16px; text-align:center;
+    background: linear-gradient(135deg, rgba(26,122,69,0.35), rgba(13,92,40,0.45));
+    border-radius:16px; border:1px solid rgba(26,122,69,0.4);
+    position: relative; overflow: hidden;
+  }
+  .ph-timer::before{
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(circle at 50% 0%, rgba(245,181,68,0.12), transparent 60%);
+    pointer-events:none;
+  }
+  .ph-timer .t{
+    font-size:30px;font-weight:700;letter-spacing:-0.02em;
+    font-variant-numeric:tabular-nums;font-family: var(--mono);
+    position: relative;
+  }
+  .ph-timer .s{
+    font-size:10px;color:rgba(255,255,255,0.6);
+    text-transform:uppercase;letter-spacing:0.12em;margin-top:2px;
+    font-family: var(--mono);
+    position: relative;
+  }
+  .ph-score{display:flex;justify-content:center;gap:20px;align-items:center;margin-top:12px; position: relative}
+  .ph-score .team{font-size:11px;font-weight:600;color:rgba(255,255,255,0.85)}
+  .ph-score .vs{font-size:22px;font-weight:700;color:var(--gold);font-family:var(--mono); letter-spacing:-0.02em}
+
+  .ph-card{
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(8px);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px; padding:14px; margin: 8px 16px;
+  }
+  .ph-card h4{font-size:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-weight:600}
+  .ph-card h4 .tag{
+    font-size:9px;color:var(--gold);font-weight:700;
+    background: rgba(245,181,68,0.12); padding: 3px 7px; border-radius: 6px;
+    font-family: var(--mono); letter-spacing: 0.05em;
+  }
+  .ph-row{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:11px}
+  .ph-avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-deep));flex-shrink:0;display:grid;place-items:center;font-size:9px;font-weight:700; color: #fff}
+  .ph-row .ok{margin-left:auto;color:#4ade80;font-size:14px}
+  .ph-stat-row{display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid rgba(255,255,255,0.06);margin-top:6px}
+  .ph-stat-row .item{text-align:center}
+  .ph-stat-row .num{font-size:18px;font-weight:700;color:var(--gold);font-family:var(--mono); letter-spacing:-0.02em}
+  .ph-stat-row .lbl{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em; font-family: var(--mono); margin-top: 2px}
+
+  /* Floating chips near the phone */
+  .phone-chip{
+    position:absolute; z-index:2;
+    background: var(--bg-elev);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 20px 40px -16px rgba(0,0,0,0.6);
+    font-size: 13px; font-weight: 600;
+    backdrop-filter: blur(6px);
+  }
+  .phone-chip .chip-icon{
+    width: 32px; height: 32px; border-radius: 10px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, rgba(26,122,69,0.3), rgba(13,92,40,0.2));
+    border: 1px solid rgba(26,122,69,0.3);
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .phone-chip.top{
+    top: 6%; left: -18%;
+    animation: floatChip 6s ease-in-out infinite;
+  }
+  .phone-chip.bottom{
+    bottom: 14%; right: -16%;
+    animation: floatChip 6s ease-in-out infinite 3s;
+  }
+  .phone-chip small{
+    display: block; font-size: 10px; color: var(--text-dim); font-weight: 500;
+    font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+  @keyframes floatChip{
+    0%,100%{transform: translateY(0)}
+    50%{transform: translateY(-8px)}
+  }
+  @media(max-width:960px){
+    .phone-chip.top{left:2%; top: 2%}
+    .phone-chip.bottom{right:2%; bottom: 8%}
+  }
+  @media(max-width:640px){
+    .phone-chip{display:none}
+  }
+
+  /* ─── TRUST STRIP ──────────────────────────────────── */
+  .trust{
+    position: relative; z-index: 2;
+    padding: 36px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.015);
+  }
+  .trust-inner{
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    align-items: center;
+  }
+  @media(max-width:720px){
+    .trust-inner{grid-template-columns: repeat(2, 1fr); gap:28px}
+  }
+  .trust-item{text-align: center}
+  .trust-item .num{
+    font-family: var(--mono); font-weight: 700;
+    font-size: clamp(26px, 3.6vw, 36px); line-height: 1;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--gold) 0%, #f5d58a 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 8px;
+  }
+  .trust-item .lbl{
+    font-size: 12px; color: var(--text-dim); font-family: var(--mono);
+    text-transform: uppercase; letter-spacing: 0.12em;
+  }
+
+  /* ─── SECTIONS ─────────────────────────────────────── */
+  section{padding: 110px 0; position:relative; z-index: 2}
+  @media(max-width:900px){section{padding:90px 0}}
+  @media(max-width:600px){section{padding:70px 0}}
+  @media(max-width:420px){section{padding:60px 0}}
+  .section-head{text-align:center;max-width:720px;margin:0 auto 64px}
+  @media(max-width:600px){.section-head{margin-bottom:44px}}
+  .eyebrow{
+    display: inline-block;
+    color: var(--gold); font-size:12px; font-weight:600;
+    text-transform:uppercase; letter-spacing:0.16em; margin-bottom:16px;
+    font-family: var(--mono);
+    padding: 6px 12px;
+    background: rgba(245,181,68,0.08);
+    border: 1px solid rgba(245,181,68,0.2);
+    border-radius: 999px;
+  }
+  h2.section-title{
+    font-family: var(--display);
+    font-size: clamp(34px, 4.6vw, 54px);
+    font-weight: 700; letter-spacing:-0.035em; line-height:1.05;
+    margin-bottom: 18px;
+  }
+  h2.section-title em{
+    font-style: normal; font-weight: 800;
+    color: var(--gold);
+  }
+  .section-sub{color: var(--text-mid); font-size:18px; line-height: 1.55}
+
+  /* ─── FEATURES ─────────────────────────────────────── */
+  .features-grid{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: minmax(220px, auto);
+    gap:20px;
+  }
+  @media(max-width:960px){
+    .features-grid{grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; gap: 16px}
+    .features-grid > *{grid-column: auto; grid-row: auto}
+    .feature-card.wide{grid-column: span 2}
+  }
+  @media(max-width:560px){
+    .features-grid{grid-template-columns: 1fr}
+    .feature-card.wide{grid-column: auto}
+  }
+  .feature-card{
+    background: linear-gradient(180deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    transition: transform .25s, border-color .25s, box-shadow .25s;
+    position:relative; overflow:hidden;
+    display: flex; flex-direction: column;
+  }
+  @media(max-width:600px){.feature-card{padding: 24px}}
+  .feature-card::before{
+    content:""; position:absolute; top:0; left:24px; right:24px; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(245,181,68,0.5), transparent);
+    opacity:0; transition: opacity .3s;
+  }
+  .feature-card:hover{
+    transform:translateY(-4px);
+    border-color:rgba(245,181,68,0.22);
+    box-shadow:0 28px 50px -20px rgba(0,0,0,0.55)
+  }
+  .feature-card:hover::before{opacity:1}
+
+  /* Bento grid layout */
+  .feature-card.wide{grid-column: span 4}
+  .feature-card.tall{grid-column: span 2; grid-row: span 2}
+  .feature-card.normal{grid-column: span 2}
+
+  .feature-icon{
+    width:52px;height:52px;border-radius:14px;
+    background: linear-gradient(135deg, rgba(26,122,69,0.28), rgba(13,92,40,0.18));
+    border: 1px solid rgba(26,122,69,0.35);
+    display:grid;place-items:center;margin-bottom:22px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .feature-icon svg{width:26px;height:26px}
+  .feature-card h3{
+    font-family: var(--display);
+    font-size:22px;font-weight:700;margin-bottom:10px;letter-spacing:-0.025em;
+    line-height: 1.2;
+  }
+  .feature-card p{color:var(--text-mid);font-size:15px; line-height: 1.55}
+
+  /* Featured card visuals */
+  .feature-card.wide{
+    background:
+      radial-gradient(ellipse at 90% 10%, rgba(245,181,68,0.08), transparent 50%),
+      linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
+    padding: 36px;
+  }
+  @media(max-width:600px){.feature-card.wide{padding: 24px}}
+  .feature-card.wide h3{font-size: clamp(22px, 3.2vw, 28px)}
+  .feature-card.wide .fc-body{
+    display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center;
+  }
+  @media(max-width:700px){
+    .feature-card.wide .fc-body{grid-template-columns: 1fr; gap: 24px}
+  }
+  .fc-visual{
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .fc-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.06);
+  }
+  .fc-row:last-child{border-bottom:none}
+  .fc-row .name{color: var(--text); font-weight: 500; display:flex; align-items:center; gap:10px}
+  .fc-row .dot{width:8px; height:8px; border-radius:50%; background: var(--green)}
+  .fc-row.pending .dot{background: var(--gold)}
+  .fc-row .val{color: var(--text-dim)}
+  .fc-row .val.ok{color:#4ade80}
+  .fc-row .val.wait{color:var(--gold)}
+
+  /* Feature card with big number */
+  .feature-card.tall{
+    background:
+      radial-gradient(circle at 50% 0%, rgba(26,122,69,0.18), transparent 50%),
+      linear-gradient(180deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
+  }
+  .big-stat{
+    font-family: var(--mono);
+    font-size: clamp(54px, 7vw, 72px); font-weight: 700; line-height: 1;
+    letter-spacing: -0.05em;
+    background: linear-gradient(135deg, var(--gold) 0%, #f5d58a 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin: auto 0 16px; padding-top: 20px;
+  }
+  .big-stat-label{
+    font-family: var(--mono);
+    font-size: 11px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 16px;
+  }
+
+  /* ─── HOW ──────────────────────────────────────────── */
+  #how{
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-elev) 100%);
+  }
+  .steps{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:28px;
+    counter-reset: step;
+    position: relative;
+  }
+  /* Dashed line connecting steps */
+  .steps::before{
+    content:""; position: absolute;
+    top: 52px; left: 12%; right: 12%;
+    height: 2px;
+    background-image: linear-gradient(to right, rgba(245,181,68,0.4) 50%, transparent 50%);
+    background-size: 12px 2px;
+    background-repeat: repeat-x;
+    z-index: 0;
+  }
+  @media(max-width:820px){
+    .steps{grid-template-columns:1fr;gap:20px}
+    .steps::before{display:none}
+  }
+  .step{
+    background: var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px 30px;
+    position:relative;
+    transition: border-color .25s, transform .25s;
+    z-index: 1;
+  }
+  @media(max-width:600px){.step{padding: 28px 24px}}
+  .step:hover{border-color: rgba(245,181,68,0.2); transform: translateY(-3px)}
+  .step-num{
+    width:56px;height:56px;border-radius:50%;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-deep) 100%);
+    display:grid;place-items:center;
+    font-family: var(--mono);
+    font-size:22px;font-weight:700;color:#fff;
+    margin-bottom:24px;
+    box-shadow:
+      0 0 0 6px var(--bg-elev),
+      0 8px 24px -8px rgba(26,122,69,0.7);
+    position: relative;
+  }
+  .step-num::after{
+    content:""; position: absolute; inset: -2px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), transparent);
+    z-index: -1; opacity: 0.3;
+  }
+  .step h3{
+    font-family: var(--display);
+    font-size:24px;font-weight:700;margin-bottom:10px;letter-spacing:-0.025em;
+    line-height: 1.2;
+  }
+  .step p{color:var(--text-mid); font-size: 15px}
+
+  /* ─── FAQ ──────────────────────────────────────────── */
+  .faq-wrap{
+    max-width: 820px; margin: 0 auto;
+    display: grid; gap: 12px;
+  }
+  .faq-item{
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: border-color .25s;
+  }
+  .faq-item[open]{border-color: rgba(245,181,68,0.25)}
+  .faq-item summary{
+    list-style: none;
+    padding: 22px 24px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px;
+    font-family: var(--display);
+    font-size: 17px; font-weight: 600; color: var(--text);
+    letter-spacing: -0.02em;
+    transition: background .2s;
+  }
+  @media(max-width:520px){
+    .faq-item summary{padding: 18px 20px; font-size: 16px}
+    .faq-item .body{padding: 0 20px 20px}
+  }
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-item summary:hover{background: rgba(255,255,255,0.02)}
+  .faq-item .icon{
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(245,181,68,0.1);
+    border: 1px solid rgba(245,181,68,0.25);
+    display: grid; place-items: center;
+    color: var(--gold);
+    flex-shrink: 0;
+    transition: transform .25s;
+  }
+  .faq-item .icon svg{width: 14px; height: 14px}
+  .faq-item[open] .icon{transform: rotate(45deg)}
+  .faq-item .body{
+    padding: 0 24px 24px;
+    color: var(--text-mid);
+    font-size: 15px; line-height: 1.6;
+    max-width: 680px;
+  }
+  .faq-item .body a{color: var(--gold); border-bottom: 1px solid rgba(245,181,68,0.3)}
+
+  /* ─── DOWNLOAD CTA ─────────────────────────────────── */
+  .download{
+    position:relative; overflow:hidden;
+  }
+  .download-inner{
+    background:
+      radial-gradient(circle at 15% 15%, rgba(245,181,68,0.18), transparent 55%),
+      radial-gradient(circle at 85% 85%, rgba(26,122,69,0.25), transparent 55%),
+      linear-gradient(135deg, #0d4d25 0%, #0a3a1c 50%, #051a0c 100%);
+    border-radius: 36px;
+    padding: 80px 60px;
+    text-align:center;
+    border: 1px solid rgba(245,181,68,0.18);
+    box-shadow: var(--shadow-glow);
+    position:relative; overflow:hidden;
+  }
+  .download-inner::before{
+    content:""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at 50% 50%, #000 20%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 20%, transparent 75%);
+    pointer-events:none;
+  }
+  .download-inner::after{
+    content:""; position:absolute; bottom:-40%; right:-20%;
+    width:500px;height:500px;border-radius:50%;
+    background: radial-gradient(circle, rgba(26,122,69,0.3), transparent 60%);
+    pointer-events:none;
+  }
+  .download .eyebrow{
+    background: rgba(245,181,68,0.15);
+    border-color: rgba(245,181,68,0.3);
+  }
+  .download h2{
+    font-family: var(--display);
+    font-size: clamp(34px, 4.6vw, 52px);
+    font-weight: 700; letter-spacing:-0.035em; margin-bottom:16px;
+    position:relative; line-height: 1.05;
+  }
+  .download h2 em{font-style: normal; color: var(--gold); font-weight: 800}
+  .download p{color: rgba(255,255,255,0.75); margin-bottom:36px; font-size:18px; position:relative; max-width: 540px; margin-left:auto; margin-right:auto}
+  .download .cta-row{justify-content:center; position:relative}
+  @media(max-width:600px){.download-inner{padding:56px 24px; border-radius: 28px}}
+  @media(max-width:420px){.download-inner{padding:44px 20px}}
+
+  /* ─── FOOTER ───────────────────────────────────────── */
+  footer{
+    border-top:1px solid var(--border);
+    padding: 60px 0 40px;
+    background: var(--bg-elev);
+    position: relative; z-index: 2;
+  }
+  .footer-grid{
+    display:grid; grid-template-columns: 1.6fr 1fr 1fr; gap:48px;
+    margin-bottom:40px;
+  }
+  @media(max-width:700px){.footer-grid{grid-template-columns:1fr;gap:32px}}
+  .footer-col h4{
+    font-family: var(--mono);
+    font-size:12px;text-transform:uppercase;letter-spacing:0.14em;
+    color:var(--text);margin-bottom:16px;font-weight:600;
+  }
+  .footer-col a{display:block;color:var(--text-dim);font-size:14px;padding:5px 0;transition:color .2s}
+  .footer-col a:hover{color:var(--gold)}
+  .footer-brand p{color:var(--text-dim);font-size:14px;margin-top:14px;max-width:320px; line-height: 1.6}
+  .footer-stores{display:flex;gap:10px;margin-top:20px}
+  .footer-stores a{
+    width:40px;height:40px;border-radius:11px;
+    background: rgba(255,255,255,0.04); border:1px solid var(--border);
+    display:grid;place-items:center;
+    transition: background .2s, border-color .2s, transform .15s;
+  }
+  .footer-stores a:hover{background:rgba(245,181,68,0.1);border-color:rgba(245,181,68,0.3); transform: translateY(-1px)}
+  .footer-stores svg{width:18px;height:18px}
+  .footer-bottom{
+    border-top:1px solid var(--border); padding-top:26px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:13px;color:var(--text-dim);flex-wrap:wrap;gap:12px;
+  }
+  .footer-bottom .made{font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em}
+
+  /* ─── REVEAL animation ─────────────────────────────── */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1)}
+  .reveal.visible{opacity:1;transform:none}
+  .reveal-delay-1{transition-delay:.08s}
+  .reveal-delay-2{transition-delay:.16s}
+  .reveal-delay-3{transition-delay:.24s}
+  .reveal-delay-4{transition-delay:.32s}
+
+  ::selection{background:var(--gold);color:#1a1200}
+
+  /* Utilities */
+  @media(max-width:700px){
+    .hide-mobile{display:none}
+  }
+
+  /* Respeitar reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+    .reveal{opacity:1; transform: none}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="#hero" class="brand">
+      <span class="brand-mark">
+        <img src="assets/icon.png" alt="Playzup" />
+      </span>
+      Playzup
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="#features">Funcionalidades</a>
+      <a href="#how">Como funciona</a>
+      <a href="#faq">FAQ</a>
+      <a href="privacy.html">Privacidade</a>
+      <a href="#download" class="nav-cta">Obter app</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="tagline reveal">O teu jogo. A tua equipa.</div>
+      <h1 class="hero-title reveal reveal-delay-1">
+        Chega de confusão<br class="hide-mobile" />no grupo. <span class="accent">Começa a jogar a sério.</span>
+      </h1>
+      <p class="hero-sub reveal reveal-delay-2">
+        A Playzup organiza convocatórias, pagamentos, equipas e estatísticas. Tudo num só sítio — para que só te preocupes em jogar.
+      </p>
+      <div class="cta-row reveal reveal-delay-3">
+        <a href="#download" class="store-btn primary" aria-label="Download na App Store">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          <span><span class="small">Download na</span><span class="big">App Store</span></span>
+        </a>
+        <a href="#download" class="store-btn dark" aria-label="Download no Google Play">
+          <svg viewBox="0 0 24 24"><path fill="#00d2ff" d="M3.61 1.81C3.23 2.21 3 2.83 3 3.62v16.76c0 .79.23 1.41.61 1.81l.06.05L13 13.07v-.21L3.67 1.76l-.06.05z"/><path fill="#ffce00" d="M16.74 16.41l-3.74-3.34v-.21l3.74-3.34.08.05 4.43 2.52c1.27.72 1.27 1.9 0 2.62l-4.43 2.52-.08.05z"/><path fill="#ff3a44" d="M16.82 16.36L13 12.5 3.61 21.86c.42.44 1.11.5 1.89.06l11.32-5.56"/><path fill="#00f076" d="M16.82 8.64L5.5 2.63c-.78-.44-1.47-.38-1.89.06L13 12.5l3.82-3.86z"/></svg>
+          <span><span class="small">Disponível no</span><span class="big">Google Play</span></span>
+        </a>
+      </div>
+
+      <div class="hero-stats reveal reveal-delay-4">
+        <div>
+          <strong>5 min<span class="plus"></span></strong>
+          <span>Setup até jogar</span>
+        </div>
+        <div class="divider"></div>
+        <div>
+          <strong>0 €</strong>
+          <span>Para começar</span>
+        </div>
+        <div class="divider"></div>
+        <div>
+          <strong>iOS + Android</strong>
+          <span>Todos os jogadores</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phone-wrap reveal reveal-delay-2">
+      <!-- Floating chips -->
+      <div class="phone-chip top">
+        <div class="chip-icon">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+          Rui confirmou
+          <small>há 2 min</small>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="ph-header">
+            <div>
+              <div class="ph-title">FC Lisboa</div>
+              <div class="ph-sub">Quinta · 21:00</div>
+            </div>
+            <div class="ph-badge">AO VIVO</div>
+          </div>
+
+          <div class="ph-timer">
+            <div class="t">42:18</div>
+            <div class="s">2ª parte</div>
+            <div class="ph-score">
+              <span class="team">Equipa A</span>
+              <span class="vs">3 — 2</span>
+              <span class="team">Equipa B</span>
+            </div>
+          </div>
+
+          <div class="ph-card">
+            <h4>Convocados <span class="tag">14 / 14</span></h4>
+            <div class="ph-row"><span class="ph-avatar">JM</span> João M. <span class="ok">✓</span></div>
+            <div class="ph-row"><span class="ph-avatar">RS</span> Rui S. <span class="ok">✓</span></div>
+            <div class="ph-row"><span class="ph-avatar">PA</span> Pedro A. <span class="ok">✓</span></div>
+          </div>
+
+          <div class="ph-card" style="margin-bottom:16px">
+            <h4>Estatísticas</h4>
+            <div class="ph-stat-row">
+              <div class="item"><div class="num">12</div><div class="lbl">Golos</div></div>
+              <div class="item"><div class="num">8</div><div class="lbl">Assist.</div></div>
+              <div class="item"><div class="num">3</div><div class="lbl">MVP</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-chip bottom">
+        <div class="chip-icon">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div>
+          MVP: João M.
+          <small>Última jornada</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<section class="trust" style="padding: 36px 0">
+  <div class="container">
+    <div class="trust-inner">
+      <div class="trust-item reveal">
+        <div class="num">Zero</div>
+        <div class="lbl">Anúncios. Nunca.</div>
+      </div>
+      <div class="trust-item reveal reveal-delay-1">
+        <div class="num">&lt; 1min</div>
+        <div class="lbl">Para convocar</div>
+      </div>
+      <div class="trust-item reveal reveal-delay-2">
+        <div class="num">Auto</div>
+        <div class="lbl">Divisão de pagamentos</div>
+      </div>
+      <div class="trust-item reveal reveal-delay-3">
+        <div class="num">24/7</div>
+        <div class="lbl">Estatísticas na mão</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Funcionalidades</div>
+      <h2 class="section-title">Tudo o que a <em>tua equipa</em> precisa</h2>
+      <p class="section-sub">Pensado para quem joga futebol amador a sério, sem perder tempo com mensagens e folhas de Excel.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- FEATURED: wide -->
+      <div class="feature-card wide reveal">
+        <div class="fc-body">
+          <div>
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <h3>Convocatórias inteligentes</h3>
+            <p>Confirmações em tempo real e lista de espera automática quando a equipa enche. Tu não persegues ninguém — a app fá-lo por ti.</p>
+          </div>
+          <div class="fc-visual" aria-hidden="true">
+            <div class="fc-row">
+              <div class="name"><span class="dot"></span> João Monteiro</div>
+              <div class="val ok">Confirmado</div>
+            </div>
+            <div class="fc-row">
+              <div class="name"><span class="dot"></span> Rui Sousa</div>
+              <div class="val ok">Confirmado</div>
+            </div>
+            <div class="fc-row pending">
+              <div class="name"><span class="dot"></span> Pedro Almeida</div>
+              <div class="val wait">A aguardar</div>
+            </div>
+            <div class="fc-row">
+              <div class="name"><span class="dot"></span> Miguel Costa</div>
+              <div class="val ok">Confirmado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TALL: big number -->
+      <div class="feature-card tall reveal reveal-delay-1">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h3>Gestão de pagamentos</h3>
+        <p>Divide o custo do campo automaticamente pelos jogadores confirmados. Sem contas chatas no grupo.</p>
+        <div class="big-stat">÷14</div>
+        <div class="big-stat-label">Divisão automática por jogador</div>
+      </div>
+
+      <!-- NORMAL -->
+      <div class="feature-card normal reveal reveal-delay-2">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Jogo ao vivo</h3>
+        <p>Cronómetro, golos e assistências em tempo real. Tudo registado à medida que joga.</p>
+      </div>
+
+      <!-- NORMAL -->
+      <div class="feature-card normal reveal reveal-delay-3">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <h3>Estatísticas e MVP</h3>
+        <p>Votação no MVP após cada jogo e histórico sempre à mão — individual e do clube.</p>
+      </div>
+
+      <!-- NORMAL -->
+      <div class="feature-card normal reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>Formação de equipas</h3>
+        <p>Sorteio justo ou manual. Equipas equilibradas em segundos, sem discussões.</p>
+      </div>
+
+      <!-- NORMAL -->
+      <div class="feature-card normal reveal reveal-delay-1">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Tudo num só sítio</h3>
+        <p>Adeus grupo caótico de WhatsApp. A tua malta organizada como nunca antes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Como funciona</div>
+      <h2 class="section-title">Três passos. <em>E já estás a jogar.</em></h2>
+      <p class="section-sub">Da instalação ao apito final em poucos minutos.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <h3>Cria o teu clube</h3>
+        <p>Define o nome, escolhe o emblema e convida os teus jogadores.</p>
+      </div>
+      <div class="step reveal reveal-delay-1">
+        <div class="step-num">2</div>
+        <h3>Convoca a malta</h3>
+        <p>Marca o jogo, envia a convocatória e acompanha as confirmações em tempo real.</p>
+      </div>
+      <div class="step reveal reveal-delay-2">
+        <div class="step-num">3</div>
+        <h3>Joga e acompanha tudo</h3>
+        <p>Forma equipas, regista golos e descobre o MVP. As estatísticas atualizam-se sozinhas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background: var(--bg-elev)">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Perguntas frequentes</div>
+      <h2 class="section-title">Tudo o que <em>precisas</em> de saber</h2>
+      <p class="section-sub">E se não estiver aqui, escreve-nos. Respondemos a sério.</p>
+    </div>
+
+    <div class="faq-wrap">
+      <details class="faq-item reveal" open>
+        <summary>
+          A Playzup é grátis?
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </summary>
+        <div class="body">
+          Sim, começar é gratuito. Criar o clube, convocar jogadores e registar jogos não tem custo. Funcionalidades avançadas (como estatísticas detalhadas e multi-equipa) fazem parte do plano premium.
+        </div>
+      </details>
+
+      <details class="faq-item reveal reveal-delay-1">
+        <summary>
+          Preciso de ser administrador para usar?
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </summary>
+        <div class="body">
+          Não. Há o papel de <strong>admin</strong> (quem cria e gere o clube) e o papel de <strong>jogador</strong>. Jogadores apenas confirmam presença, votam no MVP e consultam estatísticas — sem ter de aprender nada.
+        </div>
+      </details>
+
+      <details class="faq-item reveal reveal-delay-2">
+        <summary>
+          Como funcionam os pagamentos?
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </summary>
+        <div class="body">
+          Indicas o custo do campo e a app divide automaticamente pelos jogadores confirmados. Cada um vê exatamente quanto deve — adeus contas no caderno.
+        </div>
+      </details>
+
+      <details class="faq-item reveal reveal-delay-3">
+        <summary>
+          Os meus dados estão seguros?
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </summary>
+        <div class="body">
+          Sim. Usamos Firebase (Google) com regras de segurança que garantem que só tu e a tua equipa têm acesso aos dados do vosso clube. Nunca vendemos informação. Vê todos os detalhes na <a href="privacy.html">Política de Privacidade</a>.
+        </div>
+      </details>
+
+      <details class="faq-item reveal reveal-delay-4">
+        <summary>
+          Funciona em iOS e Android?
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </summary>
+        <div class="body">
+          Sim, é nativa nas duas plataformas. Basta fazer download na App Store ou no Google Play e todos os jogadores do clube podem estar em sistemas diferentes sem problema.
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section class="download" id="download">
+  <div class="container">
+    <div class="download-inner reveal">
+      <div class="eyebrow">Download</div>
+      <h2>Pronto para <em>jogar a sério?</em></h2>
+      <p>Descarrega a Playzup gratuitamente e organiza a tua equipa hoje mesmo. Cinco minutos — e a malta fica tratada.</p>
+      <div class="cta-row">
+        <a href="#" class="store-btn primary" aria-label="Download na App Store">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          <span><span class="small">Download na</span><span class="big">App Store</span></span>
+        </a>
+        <a href="#" class="store-btn dark" aria-label="Download no Google Play">
+          <svg viewBox="0 0 24 24"><path fill="#00d2ff" d="M3.61 1.81C3.23 2.21 3 2.83 3 3.62v16.76c0 .79.23 1.41.61 1.81l.06.05L13 13.07v-.21L3.67 1.76l-.06.05z"/><path fill="#ffce00" d="M16.74 16.41l-3.74-3.34v-.21l3.74-3.34.08.05 4.43 2.52c1.27.72 1.27 1.9 0 2.62l-4.43 2.52-.08.05z"/><path fill="#ff3a44" d="M16.82 16.36L13 12.5 3.61 21.86c.42.44 1.11.5 1.89.06l11.32-5.56"/><path fill="#00f076" d="M16.82 8.64L5.5 2.63c-.78-.44-1.47-.38-1.89.06L13 12.5l3.82-3.86z"/></svg>
+          <span><span class="small">Disponível no</span><span class="big">Google Play</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <div class="brand">
+          <span class="brand-mark">
+            <img src="assets/icon.png" alt="Playzup" />
+          </span>
+          Playzup
+        </div>
+        <p>O teu jogo. A tua equipa. Gestão de futebol amador, sem o caos do grupo de WhatsApp.</p>
+        <div class="footer-stores">
+          <a href="#" aria-label="App Store"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></a>
+          <a href="#" aria-label="Google Play"><svg viewBox="0 0 24 24"><path fill="#00d2ff" d="M3.61 1.81C3.23 2.21 3 2.83 3 3.62v16.76c0 .79.23 1.41.61 1.81l.06.05L13 13.07v-.21L3.67 1.76l-.06.05z"/><path fill="#ffce00" d="M16.74 16.41l-3.74-3.34v-.21l3.74-3.34.08.05 4.43 2.52c1.27.72 1.27 1.9 0 2.62l-4.43 2.52-.08.05z"/><path fill="#ff3a44" d="M16.82 16.36L13 12.5 3.61 21.86c.42.44 1.11.5 1.89.06l11.32-5.56"/><path fill="#00f076" d="M16.82 8.64L5.5 2.63c-.78-.44-1.47-.38-1.89.06L13 12.5l3.82-3.86z"/></svg></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>App</h4>
+        <a href="#features">Funcionalidades</a>
+        <a href="#how">Como funciona</a>
+        <a href="#faq">FAQ</a>
+        <a href="#download">Download</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Legal & Suporte</h4>
+        <a href="privacy.html">Política de Privacidade</a>
+        <a href="mailto:suporte@playzup.app">Suporte</a>
+        <a href="mailto:suporte@playzup.app">suporte@playzup.app</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>© 2025 Playzup. Todos os direitos reservados.</div>
+      <div class="made">Feito com ⚽ em Portugal</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll effect
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 10);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Mobile nav toggle
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navLinks');
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => links.classList.remove('open')));
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
